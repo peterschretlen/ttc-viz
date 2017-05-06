@@ -27,7 +27,14 @@ axios.get(url, { params : routeParams } )
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoicGV0ZXJzY2hyZXRsZW4iLCJhIjoiY2oyZHIxZ2diMDZrZjJ3cXl1bDVpY3FwZyJ9.D1guBUz1ULS2LBCltPeYOg';
-var map = new mapboxgl.Map({
+
+//center on toronto
+var center = new mapboxgl.LngLat(-79.3832, 43.6532);
+
+const map = new mapboxgl.Map({
   container: 'map',
-  style: 'mapbox://styles/mapbox/dark-v9'
+  style: 'mapbox://styles/mapbox/dark-v9',
+  center: center,
+  zoom: 11,
+  scrollZoom: true
 });
