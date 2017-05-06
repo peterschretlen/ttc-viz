@@ -1,0 +1,25 @@
+{
+  "name": "ttc-viz",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterschretlen/ttc-viz.git"
+  },
+  "author": "Peter Schretlen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/peterschretlen/ttc-viz/issues"
+  },
+  "homepage": "https://github.com/peterschretlen/ttc-viz#readme",
+  "dependencies": {
+    "@turf/turf": "^4.2.0",
+    "axios": "^0.16.1",
+    "xml-mapping": "^1.7.1",
+    "xml2js": "^0.4.17"
+  }
+}
