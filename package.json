@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prestart": "npm install",
-    "prewebpack" : "npm install",
+    "prewebpack": "npm install",
     "webpack": "./node_modules/.bin/webpack -d --watch",
     "start": "./node_modules/.bin/http-server src/public -p 8000"
   },
@@ -28,6 +28,7 @@
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
+    "d3-dsv": "^1.0.5",
     "babel": "^6.23.0",
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
