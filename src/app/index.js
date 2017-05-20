@@ -4,6 +4,8 @@ const xml2js = require('xml2js');
 const xmlParser = (new xml2js.Parser()).parseString;
 const mapboxgl = require('mapbox-gl/dist/mapbox-gl.js');
 const turf = require('@turf/turf');
+const n65 = require('../data/processed/65_north.json');
+const s65 = require('../data/processed/65_south.json');
 
 const url = 'http://webservices.nextbus.com/service/publicXMLFeed';
 const routeParams = {
@@ -65,32 +67,42 @@ axios.get(url, { params : routeParams } )
             segment => segment.point.map( 
                 p => [ p.$.lon, p.$.lat ] ));
 
-        paths.forEach( (p, i) => {
-            map.addLayer({
-                'id': `route${i}`,
-                'type': 'line',
-                'source': {
-                    'type': 'geojson',
-                    'data': {
-                        'type': 'Feature',
-                        'properties': {},
-                        'geometry': {
-                            'type': 'LineString',
-                            'coordinates': p
-                        }
-                    }
-                },
-                'layout': {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                'paint': {
-                    'line-color': `#F00`,
-                    'line-width': 5,
-                    'line-opacity': 0.5
-                }
-            });       
-        })
+        map.addLayer({
+            'id':'65 South',
+            'type':'line',
+            'source':{
+                'type':'geojson',
+                'data': s65
+            },
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': `#F00`,
+                'line-width': 5,
+                'line-opacity': 0.5
+            }
+        });
+
+        map.addLayer({
+            'id':'65 North',
+            'type':'line',
+            'source':{
+                'type':'geojson',
+                'data': n65
+            },
+            'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            'paint': {
+                'line-color': `#00F`,
+                'line-width': 5,
+                'line-opacity': 0.5
+            }
+        });
+
 
     });
 
@@ -98,3 +110,33 @@ axios.get(url, { params : routeParams } )
   .catch(function (error) {
     console.log(error);
   });
+
+//from: https://www.mapbox.com/mapbox-gl-js/example/toggle-layers/
+const toggleableLayerIds = [ '65 North', '65 South' ];
+
+toggleableLayerIds.forEach( id => {
+
+    const link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = id;
+
+    link.onclick = function (e) {
+        const clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+            this.className = '';
+        } else {
+            this.className = 'active';
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+        }
+    };
+
+    const layers = document.getElementById('menu');
+    layers.appendChild(link);
+});
