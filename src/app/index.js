@@ -35,125 +35,196 @@ const map = new mapboxgl.Map({
   scrollZoom: true
 });
 
-axios.get(url, { params : routeParams } )
-  .then( response => {
+map.on('load', () => {
 
-    xmlParser( response.data,  (e,r) => {
+    axios.get(url, { params : routeParams } )
+      .then( response => {
 
-        //console.log( JSON.stringify(r.body.route));
-        const rdef = r.body.route[0].$
+        xmlParser( response.data,  (e,r) => {
 
-        //display a simple bouding box of the route
-        const bounds = turf.polygon([[
-            [rdef.lonMin,rdef.latMin],
-            [rdef.lonMin,rdef.latMax],
-            [rdef.lonMax,rdef.latMax],
-            [rdef.lonMax,rdef.latMin],
-            [rdef.lonMin,rdef.latMin]            
-            ]], rdef );
+            //console.log( JSON.stringify(r.body.route));
+            const rdef = r.body.route[0].$
 
-        var bbox = {
-            type: 'FeatureCollection',
-            features: [ bounds ]
-        }
+            //display a simple bouding box of the route
+            const bounds = turf.polygon([[
+                [rdef.lonMin,rdef.latMin],
+                [rdef.lonMin,rdef.latMax],
+                [rdef.lonMax,rdef.latMax],
+                [rdef.lonMax,rdef.latMin],
+                [rdef.lonMin,rdef.latMin]            
+                ]], rdef );
 
-        map.addLayer({ 
-            'id' : rdef.title, 
-            'type': 'fill',
-            'source': {
-                'type':'geojson',
-                'data': bbox
-            },
-            'layout': {},
-            'paint': {
-                'fill-color': '#088',
-                'fill-opacity': 0.2
-            }            
-        });
-
-        const paths = r.body.route[0].path.map( 
-            segment => segment.point.map( 
-                p => [ p.$.lon, p.$.lat ] ));
-
-        map.addLayer({
-            'id':'65 South',
-            'type':'line',
-            'source':{
-                'type':'geojson',
-                'data': s65
-            },
-            'layout': {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            'paint': {
-                'line-color': `#F00`,
-                'line-width': 5,
-                'line-opacity': 0.5
+            var bbox = {
+                type: 'FeatureCollection',
+                features: [ bounds ]
             }
+
+            map.addLayer({ 
+                'id' : rdef.title, 
+                'type': 'fill',
+                'source': {
+                    'type':'geojson',
+                    'data': bbox
+                },
+                'layout': {},
+                'paint': {
+                    'fill-color': '#088',
+                    'fill-opacity': 0.2
+                }            
+            });
+
+            map.addLayer({
+                'id':'65 S Route',
+                'type':'line',
+                'source':{
+                    'type':'geojson',
+                    'data': s65
+                },
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': `#F00`,
+                    'line-width': 5,
+                    'line-opacity': 0.5
+                }
+            });
+
+            map.addLayer({
+                'id':'65 N Route',
+                'type':'line',
+                'source':{
+                    'type':'geojson',
+                    'data': n65
+                },
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': `#00F`,
+                    'line-width': 5,
+                    'line-opacity': 0.5
+                }
+            });
+
+
         });
 
-        map.addLayer({
-            'id':'65 North',
-            'type':'line',
-            'source':{
-                'type':'geojson',
-                'data': n65
-            },
-            'layout': {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            'paint': {
-                'line-color': `#00F`,
-                'line-width': 5,
-                'line-opacity': 0.5
-            }
+        const toggleableLayerIds = [ '65 N Route',  '65 S Route', ];
+        addLayerToggles( toggleableLayerIds )
+
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+    axios.get(url, { params : vehicleLocationParms } )
+      .then( response => {
+        xmlParser( response.data,  (e,r) => {
+            //console.log( JSON.stringify(r.body.lastTime[0].$.time));
+            //console.log( JSON.stringify(r.body.vehicle));
+
+            const locations = r.body.vehicle.map( l => l.$ )
+
+            const s65Locations = locations
+                .filter( l => l.dirTag === "65_1_65" )
+                .map( l => { return {
+                    "type" : "Feature",
+                    "geometry" : {
+                        "type" : "Point",
+                        "coordinates" : [ l.lon, l.lat ] 
+                    },
+                    "properties" : {
+                        "title" : l.id
+                    }
+                }});
+
+            const n65Locations = locations
+                .filter( l => l.dirTag === "65_0_65" )
+                .map( l => { return {
+                    "type" : "Feature",
+                    "geometry" : {
+                        "type" : "Point",
+                        "coordinates" : [ l.lon, l.lat ] 
+                    },
+                    "properties" : {
+                        "title" : l.id
+                    }
+                }});
+
+            map.addLayer({
+                'id':'65 S Locations',
+                'type':'circle',
+                'source':{
+                    'type':'geojson',
+                    'data': {
+                        "type" : "FeatureCollection",
+                        "features": s65Locations
+                    }
+                },
+                'paint': {
+                    "circle-radius" : 5,
+                    "circle-color" : "#0F0"
+                }
+            });
+
+            map.addLayer({
+                'id':'65 N Locations',
+                'type':'circle',
+                'source':{
+                    'type':'geojson',
+                    'data': {
+                        "type" : "FeatureCollection",
+                        "features": n65Locations
+                    }
+                },
+                'paint': {
+                    "circle-radius" : 5,
+                    "circle-color" : "#0F0"
+                }
+            });
+
         });
 
+        const toggleableLayerIds = [ '65 N Locations', '65 S Locations' ];
+        addLayerToggles( toggleableLayerIds );
+        
+      });
 
-    });
 
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+} )
 
 //from: https://www.mapbox.com/mapbox-gl-js/example/toggle-layers/
-const toggleableLayerIds = [ '65 North', '65 South' ];
+function addLayerToggles( ids ){
 
-toggleableLayerIds.forEach( id => {
+    ids.forEach( id => {
 
-    const link = document.createElement('a');
-    link.href = '#';
-    link.className = 'active';
-    link.textContent = id;
+        const link = document.createElement('a');
+        link.href = '#';
+        link.className = 'active';
+        link.textContent = id;
 
-    link.onclick = e => {
-        const clickedLayer = this.textContent;
-        e.preventDefault();
-        e.stopPropagation();
+        link.onclick = e => {
+            const clickedLayer = e.target.textContent;
+            e.preventDefault();
+            e.stopPropagation();
 
-        const visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+            const visibility = map.getLayoutProperty(clickedLayer, 'visibility');
 
-        if (visibility === 'visible') {
-            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-            this.className = '';
-        } else {
-            this.className = 'active';
-            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-        }
-    };
+            if (visibility === 'visible') {
+                map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                e.target.className = '';
+            } else {
+                e.target.className = 'active';
+                map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+            }
+        };
 
-    const layers = document.getElementById('menu');
-    layers.appendChild(link);
-});
-
-
-axios.get(url, { params : vehicleLocationParms } )
-  .then( response => {
-    xmlParser( response.data,  (e,r) => {
-        console.log( JSON.stringify(r.body.lastTime[0].$.time));
-        console.log( JSON.stringify(r.body.vehicle));
+        const layers = document.getElementById('menu');
+        layers.appendChild(link);
     });
-  });
+
+}
+
