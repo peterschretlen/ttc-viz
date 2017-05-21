@@ -11,8 +11,16 @@ const url = 'http://webservices.nextbus.com/service/publicXMLFeed';
 const routeParams = {
     command: 'routeConfig',
     a: 'ttc',
-    r: '65', 
+    r: '65'
 }
+
+const vehicleLocationParms = {
+    command: 'vehicleLocations',
+    a: 'ttc',
+    r: '65',
+    t: '1495374664331'    
+}
+
 
 mapboxgl.accessToken = 'pk.eyJ1IjoicGV0ZXJzY2hyZXRsZW4iLCJhIjoiY2oyZHIxZ2diMDZrZjJ3cXl1bDVpY3FwZyJ9.D1guBUz1ULS2LBCltPeYOg';
 
@@ -28,7 +36,7 @@ const map = new mapboxgl.Map({
 });
 
 axios.get(url, { params : routeParams } )
-  .then(function (response) {
+  .then( response => {
 
     xmlParser( response.data,  (e,r) => {
 
@@ -121,7 +129,7 @@ toggleableLayerIds.forEach( id => {
     link.className = 'active';
     link.textContent = id;
 
-    link.onclick = function (e) {
+    link.onclick = e => {
         const clickedLayer = this.textContent;
         e.preventDefault();
         e.stopPropagation();
@@ -140,3 +148,12 @@ toggleableLayerIds.forEach( id => {
     const layers = document.getElementById('menu');
     layers.appendChild(link);
 });
+
+
+axios.get(url, { params : vehicleLocationParms } )
+  .then( response => {
+    xmlParser( response.data,  (e,r) => {
+        console.log( JSON.stringify(r.body.lastTime[0].$.time));
+        console.log( JSON.stringify(r.body.vehicle));
+    });
+  });
