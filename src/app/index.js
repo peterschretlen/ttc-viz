@@ -85,7 +85,7 @@ map.on('load', () => {
             const locations = r.body.vehicle.map( l => l.$ )
 
             const s65Locations = locations
-                .filter( l => l.dirTag === "65_1_65" )
+                .filter( l => l.dirTag === "65_0_65" )
                 .map( l => { return {
                     "type" : "Feature",
                     "geometry" : {
@@ -98,7 +98,7 @@ map.on('load', () => {
                 }});
 
             const n65Locations = locations
-                .filter( l => l.dirTag === "65_0_65" )
+                .filter( l => l.dirTag === "65_1_65" )
                 .map( l => { return {
                     "type" : "Feature",
                     "geometry" : {
