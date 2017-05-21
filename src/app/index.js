@@ -37,88 +37,44 @@ const map = new mapboxgl.Map({
 
 map.on('load', () => {
 
-    axios.get(url, { params : routeParams } )
-      .then( response => {
+    map.addLayer({
+        'id':'65 S Route',
+        'type':'line',
+        'source':{
+            'type':'geojson',
+            'data': s65
+        },
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': `#F00`,
+            'line-width': 5,
+            'line-opacity': 0.5
+        }
+    });
 
-        xmlParser( response.data,  (e,r) => {
+    map.addLayer({
+        'id':'65 N Route',
+        'type':'line',
+        'source':{
+            'type':'geojson',
+            'data': n65
+        },
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': `#00F`,
+            'line-width': 5,
+            'line-opacity': 0.5
+        }
+    });
 
-            //console.log( JSON.stringify(r.body.route));
-            const rdef = r.body.route[0].$
-
-            //display a simple bouding box of the route
-            const bounds = turf.polygon([[
-                [rdef.lonMin,rdef.latMin],
-                [rdef.lonMin,rdef.latMax],
-                [rdef.lonMax,rdef.latMax],
-                [rdef.lonMax,rdef.latMin],
-                [rdef.lonMin,rdef.latMin]            
-                ]], rdef );
-
-            var bbox = {
-                type: 'FeatureCollection',
-                features: [ bounds ]
-            }
-
-            map.addLayer({ 
-                'id' : rdef.title, 
-                'type': 'fill',
-                'source': {
-                    'type':'geojson',
-                    'data': bbox
-                },
-                'layout': {},
-                'paint': {
-                    'fill-color': '#088',
-                    'fill-opacity': 0.2
-                }            
-            });
-
-            map.addLayer({
-                'id':'65 S Route',
-                'type':'line',
-                'source':{
-                    'type':'geojson',
-                    'data': s65
-                },
-                'layout': {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                'paint': {
-                    'line-color': `#F00`,
-                    'line-width': 5,
-                    'line-opacity': 0.5
-                }
-            });
-
-            map.addLayer({
-                'id':'65 N Route',
-                'type':'line',
-                'source':{
-                    'type':'geojson',
-                    'data': n65
-                },
-                'layout': {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                'paint': {
-                    'line-color': `#00F`,
-                    'line-width': 5,
-                    'line-opacity': 0.5
-                }
-            });
-
-
-        });
-
-        const toggleableLayerIds = [ '65 N Route',  '65 S Route', ];
-        addLayerToggles( toggleableLayerIds )
-
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    const toggleableLayerIds = [ '65 N Route',  '65 S Route', ];
+    addLayerToggles( toggleableLayerIds )
 
     axios.get(url, { params : vehicleLocationParms } )
       .then( response => {
