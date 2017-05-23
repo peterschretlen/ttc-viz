@@ -122,7 +122,7 @@ map.on('load', () => {
                 },
                 'paint': {
                     "circle-radius" : 5,
-                    "circle-color" : "#0F0"
+                    "circle-color" : "#F00"
                 }
             });
 
@@ -138,7 +138,7 @@ map.on('load', () => {
                 },
                 'paint': {
                     "circle-radius" : 5,
-                    "circle-color" : "#0F0"
+                    "circle-color" : "#00F"
                 }
             });
 
